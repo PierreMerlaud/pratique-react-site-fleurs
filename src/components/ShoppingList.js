@@ -18,7 +18,7 @@ import PlantItem from "./PlantItem";
 //1ère itération : acc = [] , plant = { name: 'monstera', category: 'classique', id: '1ed' }
 //2e itération : acc = [ 'classique' ] , plant = { name: 'ficus lyrata', category: 'classique', id: '2ab' }  etc...
 
-function ShoppingList() {
+function ShoppingList({ cart, updateCart }) {
   const categories = plantList.reduce(function (acc, plant) {
     if (acc.includes(plant.category)) {
       return acc;
@@ -26,6 +26,21 @@ function ShoppingList() {
       return acc.concat(plant.category);
     }
   }, []);
+
+  function addToCart(name, price) {
+    const currentPlantSaved = cart.find((plant) => plant.name === name);
+    if (currentPlantSaved) {
+      const cartFilteredCurrentPlant = cart.filter(
+        (plant) => plant.name !== name
+      );
+      updateCart([
+        ...cartFilteredCurrentPlant,
+        { name, price, amount: currentPlantSaved.amount + 1 },
+      ]);
+    } else {
+      updateCart([...cart, { name, price, amount: 1 }]);
+    }
+  }
 
   return (
     <div className="lmj-shopping-list">
@@ -37,16 +52,28 @@ function ShoppingList() {
       <ul className="lmj-plant-list">
         {/* je récup dans mon objet uniquement ce qui m'intéresse et je les passe en prop à PlantItem */}
         {plantList.map(
-          ({ id, cover, name, water, light, isBestSale, isSpecialOffer }) => (
-            <PlantItem
-              id={id}
-              cover={cover}
-              name={name}
-              water={water}
-              light={light}
-              sale={isBestSale}
-              offer={isSpecialOffer}
-            />
+          ({
+            id,
+            cover,
+            name,
+            water,
+            light,
+            isBestSale,
+            isSpecialOffer,
+            price,
+          }) => (
+            <div key={id}>
+              <PlantItem
+                id={id}
+                cover={cover}
+                name={name}
+                water={water}
+                light={light}
+                sale={isBestSale}
+                offer={isSpecialOffer}
+              />
+              <button onClick={() => addToCart(name, price)}>Ajouter</button>
+            </div>
           )
         )}
       </ul>
